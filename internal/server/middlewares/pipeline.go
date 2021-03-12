@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019  SuperGreenLab <towelie@supergreenlab.com>
+ * Copyright (C) 2020  SuperGreenLab <towelie@supergreenlab.com>
  * Author: Constantin Clauzel <constantin.clauzel@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package middlewares
 
 import (
-	"github.com/SuperGreenLab/Analytics/internal/data/config"
-	"github.com/SuperGreenLab/Analytics/internal/data/db"
-	"github.com/SuperGreenLab/Analytics/internal/data/kv"
-	"github.com/SuperGreenLab/Analytics/internal/server"
-	"github.com/SuperGreenLab/Analytics/internal/services"
-	log "github.com/sirupsen/logrus"
+	"github.com/julienschmidt/httprouter"
+	"github.com/rileyr/middleware"
 )
 
-func main() {
-	config.Init()
+// InsertEndpoint - insert an object
+func InsertEndpoint(
+	collection string,
+	factory func() interface{},
+	pre []middleware.Middleware,
+	post []middleware.Middleware,
+) httprouter.Handle {
+	s := middleware.NewStack()
 
-	db.MigrateDB()
-	db.Init()
-	kv.Init()
+	s.Use(DecodeJSON(factory))
+	if pre != nil {
+		for _, m := range pre {
+			s.Use(m)
+		}
+	}
+	s.Use(InsertObject(collection))
 
-	server.Start()
-	services.Init()
+	if post != nil {
+		for _, m := range post {
+			s.Use(m)
+		}
+	}
+	s.Use(PublishInsert(collection))
 
-	log.Info("Analytics started")
-
-	select {}
+	return s.Wrap(OutputObjectID)
 }

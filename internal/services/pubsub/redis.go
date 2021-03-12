@@ -16,28 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package pubsub
 
 import (
-	"github.com/SuperGreenLab/Analytics/internal/data/config"
-	"github.com/SuperGreenLab/Analytics/internal/data/db"
-	"github.com/SuperGreenLab/Analytics/internal/data/kv"
-	"github.com/SuperGreenLab/Analytics/internal/server"
-	"github.com/SuperGreenLab/Analytics/internal/services"
-	log "github.com/sirupsen/logrus"
+	"github.com/go-redis/redis"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
-func main() {
-	config.Init()
+var (
+	r *redis.Client
+	_ = pflag.String("redisurl", "redis:6379", "Url to the redis instance")
+)
 
-	db.MigrateDB()
-	db.Init()
-	kv.Init()
+func init() {
+	viper.SetDefault("RedisURL", "redis:6379")
+}
 
-	server.Start()
-	services.Init()
-
-	log.Info("Analytics started")
-
-	select {}
+func initRedis() {
+	r = redis.NewClient(&redis.Options{
+		Addr:     viper.GetString("RedisURL"),
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 }

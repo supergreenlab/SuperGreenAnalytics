@@ -21,29 +21,18 @@ package server
 import (
 	"net/http"
 
-	"github.com/SuperGreenLab/AppBackend/internal/server/routes/products"
-	"github.com/SuperGreenLab/AppBackend/internal/services/prometheus"
+	"github.com/SuperGreenLab/Analytics/internal/server/routes/events"
+	"github.com/SuperGreenLab/Analytics/internal/services/prometheus"
 
-	"github.com/SuperGreenLab/AppBackend/internal/data/storage"
-
-	"github.com/SuperGreenLab/AppBackend/internal/server/routes/feeds"
-	"github.com/SuperGreenLab/AppBackend/internal/server/routes/metrics"
-	"github.com/SuperGreenLab/AppBackend/internal/server/routes/users"
 	"github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
 )
 
 // Start starts the server
 func Start() {
-	storage.SetupBucket("feedmedias")
-	storage.SetupBucket("users")
-
 	router := httprouter.New()
 
-	users.Init(router)
-	metrics.Init(router)
-	feeds.Init(router)
-	products.Init(router)
+	events.Init(router)
 
 	go func() {
 		log.Fatal(http.ListenAndServe(":8080", prometheus.NewHTTPTiming(router)))

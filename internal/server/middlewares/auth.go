@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019  SuperGreenLab <towelie@supergreenlab.com>
+ * Copyright (C) 2020  SuperGreenLab <towelie@supergreenlab.com>
  * Author: Constantin Clauzel <constantin.clauzel@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package middlewares
 
 import (
-	"github.com/SuperGreenLab/Analytics/internal/data/config"
-	"github.com/SuperGreenLab/Analytics/internal/data/db"
-	"github.com/SuperGreenLab/Analytics/internal/data/kv"
-	"github.com/SuperGreenLab/Analytics/internal/server"
-	"github.com/SuperGreenLab/Analytics/internal/services"
-	log "github.com/sirupsen/logrus"
+	"github.com/rileyr/middleware/wares"
+
+	"github.com/spf13/pflag"
+
+	"github.com/rileyr/middleware"
+	"github.com/spf13/viper"
 )
 
-func main() {
-	config.Init()
+var (
+	_ = pflag.String("logrequests", "true", "Set to false in production") // TODO move this somewhere else
+)
 
-	db.MigrateDB()
-	db.Init()
-	kv.Init()
+func init() {
+	viper.SetDefault("LogRequests", "true")
+}
 
-	server.Start()
-	services.Init()
-
-	log.Info("Analytics started")
-
-	select {}
+// AnonStack - allows anonymous connection
+func AnonStack() middleware.Stack {
+	anon := middleware.NewStack()
+	if viper.GetString("LogRequests") == "true" {
+		anon.Use(wares.Logging)
+	}
+	anon.Use(CreateDBSession)
+	return anon
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019  SuperGreenLab <towelie@supergreenlab.com>
+ * Copyright (C) 2020  SuperGreenLab <towelie@supergreenlab.com>
  * Author: Constantin Clauzel <constantin.clauzel@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package events
 
 import (
-	"github.com/SuperGreenLab/Analytics/internal/data/config"
-	"github.com/SuperGreenLab/Analytics/internal/data/db"
-	"github.com/SuperGreenLab/Analytics/internal/data/kv"
-	"github.com/SuperGreenLab/Analytics/internal/server"
-	"github.com/SuperGreenLab/Analytics/internal/services"
-	log "github.com/sirupsen/logrus"
+	cmiddlewares "github.com/SuperGreenLab/Analytics/internal/server/middlewares"
+	"github.com/julienschmidt/httprouter"
 )
 
-func main() {
-	config.Init()
-
-	db.MigrateDB()
-	db.Init()
-	kv.Init()
-
-	server.Start()
-	services.Init()
-
-	log.Info("Analytics started")
-
-	select {}
+// Init -
+func Init(router *httprouter.Router) {
+	anon := cmiddlewares.AnonStack()
 }

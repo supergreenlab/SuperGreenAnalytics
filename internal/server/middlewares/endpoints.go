@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019  SuperGreenLab <towelie@supergreenlab.com>
+ * Copyright (C) 2020  SuperGreenLab <towelie@supergreenlab.com>
  * Author: Constantin Clauzel <constantin.clauzel@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package middlewares
 
 import (
-	"github.com/SuperGreenLab/Analytics/internal/data/config"
-	"github.com/SuperGreenLab/Analytics/internal/data/db"
-	"github.com/SuperGreenLab/Analytics/internal/data/kv"
-	"github.com/SuperGreenLab/Analytics/internal/server"
-	"github.com/SuperGreenLab/Analytics/internal/services"
-	log "github.com/sirupsen/logrus"
+	"encoding/json"
+	"net/http"
+
+	"github.com/gofrs/uuid"
+	"github.com/julienschmidt/httprouter"
+	"github.com/sirupsen/logrus"
 )
 
-func main() {
-	config.Init()
-
-	db.MigrateDB()
-	db.Init()
-	kv.Init()
-
-	server.Start()
-	services.Init()
-
-	log.Info("Analytics started")
-
-	select {}
+// OutputObjectID - returns the inserted object ID
+func OutputObjectID(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	id := r.Context().Value(InsertedIDContextKey{}).(uuid.UUID)
+	response := struct {
+		ID string `json:"id"`
+	}{id.String()}
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logrus.Errorf("json.NewEncoder in OutputObjectID %q - %+v", err, response)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
