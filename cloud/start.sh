@@ -7,4 +7,4 @@ fi
 
 rm config
 ln -s config.$ENV config
-env $(cat env.$ENV) docker-compose up -d $@
+env $(cat env.$ENV) docker-compose -p analytics up -d $@
