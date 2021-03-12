@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020  SuperGreenLab <towelie@supergreenlab.com>
+ * Copyright (C) 2021  SuperGreenLab <towelie@supergreenlab.com>
  * Author: Constantin Clauzel <constantin.clauzel@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,16 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package events
+package db
 
 import (
-	cmiddlewares "github.com/SuperGreenLab/Analytics/internal/server/middlewares"
-	"github.com/julienschmidt/httprouter"
+	"time"
+
+	"github.com/gofrs/uuid"
 )
 
-// Init -
-func Init(router *httprouter.Router) {
-	anon := cmiddlewares.AnonStack()
+type Event struct {
+	ID uuid.NullUUID `db:"id,omitempty" json:"id"`
 
-	router.POST("/events", anon.Wrap(createEventHandler))
+	SessionID uuid.UUID `db:"sessionid" json:"sessionID"`
+	VisitorID uuid.UUID `db:"visitorid" json:"visitorID"`
+
+	Type   string    `db:"etype" json:"type"`
+	Params string    `db:"params" json:"params"`
+	Date   time.Time `db:"createdat" json:"date"`
+
+	CreatedAt time.Time `db:"cat,omitempty" json:"cat"`
+	UpdatedAt time.Time `db:"uat,omitempty" json:"uat"`
 }

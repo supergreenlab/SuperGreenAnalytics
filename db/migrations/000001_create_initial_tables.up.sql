@@ -5,8 +5,8 @@ create extension if not exists "uuid-ossp";
 create table if not exists events(
   id uuid primary key default uuid_generate_v4(),
 
-  sessionid uuid primary key default uuid_generate_v4(),
-  visitorid uuid primary key default uuid_generate_v4(),
+  sessionid uuid not null,
+  visitorid uuid not null,
 
   etype varchar(24) not null,
   params jsonb not null default '{}'::jsonb,

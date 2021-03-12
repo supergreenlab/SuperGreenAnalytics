@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020  SuperGreenLab <towelie@supergreenlab.com>
+ * Copyright (C) 2021  SuperGreenLab <towelie@supergreenlab.com>
  * Author: Constantin Clauzel <constantin.clauzel@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,13 +19,14 @@
 package events
 
 import (
-	cmiddlewares "github.com/SuperGreenLab/Analytics/internal/server/middlewares"
-	"github.com/julienschmidt/httprouter"
+	"github.com/SuperGreenLab/Analytics/internal/data/db"
+	"github.com/SuperGreenLab/Analytics/internal/server/middlewares"
+	"github.com/rileyr/middleware"
 )
 
-// Init -
-func Init(router *httprouter.Router) {
-	anon := cmiddlewares.AnonStack()
-
-	router.POST("/events", anon.Wrap(createEventHandler))
-}
+var createEventHandler = middlewares.InsertEndpoint(
+	"events",
+	func() interface{} { return &db.Event{} },
+	[]middleware.Middleware{},
+	[]middleware.Middleware{},
+)
