@@ -43,6 +43,10 @@ func CreateDBSession(fn httprouter.Handle) httprouter.Handle {
 	}
 }
 
+type Syncable interface {
+	GetSyncID() uuid.UUID
+}
+
 // InsertedIDContextKey - context key which stores the inserted object's ID
 type InsertedIDContextKey struct{}
 
@@ -88,10 +92,6 @@ type MultipleInsertErrorContextKey struct{}
 
 type MultipleObjects interface {
 	ToInterfaceArray() []interface{}
-}
-
-type Syncable interface {
-	GetSyncID() uuid.UUID
 }
 
 // InsertObject - Insert the payload object to DB
