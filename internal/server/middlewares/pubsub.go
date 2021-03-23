@@ -41,6 +41,10 @@ func PublishInsert(collection string) middleware.Middleware {
 			o := r.Context().Value(ObjectContextKey{})
 
 			msg := InsertMessage{id, o}
+			if s, ok := msg.Object.(Syncable); ok && s.IsSkipped() {
+				fn(w, r, p)
+				return
+			}
 			if err := pubsub.PublishObject(fmt.Sprintf("insert.%s", collection), msg); err != nil {
 				logrus.Errorf("PublishObject in PublishInsert %q", err)
 			}
@@ -57,6 +61,10 @@ func PublishMultipleInserts(collection string) middleware.Middleware {
 
 			for i, id := range ids {
 				msg := InsertMessage{id, os[i]}
+				if s, ok := msg.Object.(Syncable); ok && s.IsSkipped() {
+					continue
+				}
+
 				if err := pubsub.PublishObject(fmt.Sprintf("insert.%s", collection), msg); err != nil {
 					logrus.Errorf("PublishObject in PublishMultipleInserts %q", err)
 				}

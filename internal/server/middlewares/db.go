@@ -45,6 +45,8 @@ func CreateDBSession(fn httprouter.Handle) httprouter.Handle {
 
 type Syncable interface {
 	GetSyncID() uuid.UUID
+	SetIsSkipped()
+	IsSkipped() bool
 }
 
 // InsertedIDContextKey - context key which stores the inserted object's ID
@@ -67,10 +69,11 @@ func InsertObject(collection string) middleware.Middleware {
 						}{}
 						err := sess.Select("id").From(collection).Where("syncid = ?", s.GetSyncID()).One(&idStruct)
 						if err != nil {
-							logrus.Errorf("sess.Select in MultipleInsertObjects %q - %s %+v", err, collection, o)
+							logrus.Errorf("sess.Select in InsertObject %q - %s %+v", err, collection, o)
 							http.Error(w, err.Error(), http.StatusInternalServerError)
 							return
 						}
+						s.SetIsSkipped()
 						ctx = context.WithValue(r.Context(), InsertedIDContextKey{}, idStruct.ID)
 						fn(w, r.WithContext(ctx), p)
 						return
@@ -117,6 +120,7 @@ func InsertMultipleObjects(collection string) middleware.Middleware {
 								ctx = context.WithValue(ctx, MultipleInsertErrorContextKey{}, err)
 								break
 							}
+							s.SetIsSkipped()
 							ids = append(ids, idStruct.ID)
 							continue
 						}

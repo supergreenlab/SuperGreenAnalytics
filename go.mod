@@ -10,6 +10,8 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/golang/gddo v0.0.0-20200324184333-3c2cc9a6329d
 	github.com/gorilla/schema v1.2.0
+	github.com/influxdata/influxdb-client-go v1.4.0
+	github.com/influxdata/influxdb-client-go/v2 v2.2.2
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.0
 	github.com/pkg/errors v0.9.1

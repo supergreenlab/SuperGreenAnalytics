@@ -5,6 +5,7 @@ volumes:
     grafana_data: {}
     redis_data: {}
     postgres_data: {}
+    influxdbv2_data: {}
     docker_gen: {}
     nginx_logs: {}
 
@@ -147,6 +148,17 @@ services:
     networks:
       - back-tier
 
+  influxdb:
+    image: quay.io/influxdb/influxdb:v2.0.3
+    environment:
+      - VIRTUAL_PORT=8086
+      - VIRTUAL_HOST=${INFLUXDB_HOST}
+    volumes:
+      - influxdbv2_data:/.influxdbv2
+    restart: always
+    networks:
+      - back-tier
+      - front-tier
 
 # Backend
 

@@ -21,9 +21,11 @@ package services
 import (
 	"github.com/SuperGreenLab/Analytics/internal/services/prometheus"
 	"github.com/SuperGreenLab/Analytics/internal/services/pubsub"
+	"github.com/SuperGreenLab/Analytics/internal/services/series"
 )
 
 func Init() {
 	prometheus.Init()
 	pubsub.Init()
+	series.Init()
 }

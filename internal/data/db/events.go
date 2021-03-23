@@ -27,11 +27,12 @@ import (
 type Event struct {
 	ID uuid.NullUUID `db:"id,omitempty" json:"id"`
 
-	SyncID uuid.UUID `db:"syncid" json:"syncid"`
+	SyncID  uuid.NullUUID `db:"syncid" json:"syncid"`
+	Skipped bool          `db:"-" json:"-"`
 
-	SourceID  uuid.UUID `db:"sourceid" json:"sourceID"`
-	SessionID uuid.UUID `db:"sessionid" json:"sessionID"`
-	VisitorID uuid.UUID `db:"visitorid" json:"visitorID"`
+	SourceID  uuid.NullUUID `db:"sourceid" json:"sourceID"`
+	SessionID uuid.NullUUID `db:"sessionid" json:"sessionID"`
+	VisitorID uuid.NullUUID `db:"visitorid" json:"visitorID"`
 
 	Type   string    `db:"etype" json:"type"`
 	Params string    `db:"params" json:"params"`
@@ -42,7 +43,15 @@ type Event struct {
 }
 
 func (e Event) GetSyncID() uuid.UUID {
-	return e.SyncID
+	return e.SyncID.UUID
+}
+
+func (e *Event) SetIsSkipped() {
+	e.Skipped = true
+}
+
+func (e Event) IsSkipped() bool {
+	return e.Skipped
 }
 
 type Events struct {
@@ -57,7 +66,8 @@ func (es *Events) ToInterfaceArray() []interface{} {
 	}
 	es.interfaceCache = make([]interface{}, 0, len(es.Events))
 	for _, e := range es.Events {
-		es.interfaceCache = append(es.interfaceCache, e)
+		es.interfaceCache = append(es.interfaceCache, &e)
 	}
+	es.didCache = true
 	return es.interfaceCache
 }
